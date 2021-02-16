@@ -16,11 +16,12 @@ z = np.load(dir + '/z.npy')['0']
 data = np.reshape(np.load(dir + '/DepositedEnergy.npy'),(len(E),len(y),len(z)))
 
 norm = colors.Normalize(vmin=0,vmax=np.max(data['1']))
-
+print(np.max(data['1']))
+print(np.max(data['1'][1]))
 plt.ion()
 fig,ax = plt.subplots()
 plt.subplots_adjust(left=0.25, bottom=0.25)
-l = plt.contourf(z,y,data['1'][0,:,:],cmap=cmap)
+l = plt.contourf(z,y,data['1'][0,:,:],cmap=cmap,norm=norm)
 #l.set_array(data['1'][5,:,:])
 plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('Deposited Energy [MeV]')
 plt.ylabel('Transverse crystal ID')
@@ -34,7 +35,7 @@ def update(val):
     id = np.where(np.abs(E - float(val))<=1e-6)[0][0]
     for coll in l.collections:
         coll.remove()
-    l = ax.contourf(z,y,data['1'][id,:,:],cmap=cmap)
+    l = ax.contourf(z,y,data['1'][id,:,:],cmap=cmap,norm=norm)
     fig.canvas.draw()
     fig.canvas.flush_events()
 
