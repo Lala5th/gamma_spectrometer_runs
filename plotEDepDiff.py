@@ -22,7 +22,10 @@ layers = np.array([np.sum(ref['1'][i,:,:],axis = 0) for i in range(len(ERef))])
 
 plt.ion()
 plt.figure()
-l = plt.hist(EDist,bins=np.insert(ERef,0,0))
+new_ERef = (ERef[1:] + ERef[:-1])/2
+new_ERef = np.append(new_ERef,ERef[-1]+10)
+new_ERef = np.insert(new_ERef,0,0)
+l = plt.hist(EDist,bins=new_ERef)
 plt.figure()
 EDep = np.zeros(len(z))
 for i, Ed in enumerate(layers):
