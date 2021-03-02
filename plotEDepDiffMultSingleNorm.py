@@ -34,13 +34,10 @@ new_ERef = np.insert(new_ERef,0,0)
 l = np.histogram(EDist[id],bins=new_ERef)
 l_err = np.sqrt(l[0])
 EDep = np.zeros(len(z))
-EDep_p = np.zeros(len(z))
-EDep_n = np.zeros(len(z))
-
-for i, Ed in enumerate(layers):
-    EDep += l[0][i]*Ed
-    EDep_p += (l[0][i]+1.96*l_err[i])*Ed
-    EDep_n += (l[0][i]-1.96*l_err[i])*Ed
+EDep = np.sum((l[0])*layers.T,axis=1)
+EDep_d = np.sum((1.96*l_err)*layers.T,axis=1)/len(ECrits)
+EDep_n = EDep - EDep_d
+EDep_p = EDep + EDep_d
 plincomb, = plt.plot(z,EDep/np.max(EDep),label='Linear combination')
 psim, = plt.plot(z,np.sum(data[id],axis=0)/np.max(np.sum(data[id],axis=0)),label='Simulated')
 plt.fill_between(z,EDep_n/np.max(EDep),EDep_p/np.max(EDep),label='95% CI',alpha=0.2)
