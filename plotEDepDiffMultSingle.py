@@ -34,10 +34,6 @@ Err = np.sum(Err,axis=1)
 Err[Err < 0] = 0
 Err = np.sqrt(Err)
 
-plt.ion()
-plt.figure()
-plt.plot(z,layers[id])
-
 fig, (ax1, ax2) = plt.subplots(2,1,sharex=True)
 new_ERef = (ERef[1:] + ERef[:-1])/2
 new_ERef = np.append(new_ERef,ERef[-1]+10)
@@ -48,10 +44,10 @@ geantE = np.sqrt(np.sum((Err.T*np.sqrt(l[0]))**2,axis=1))
 
 EDep = np.sum((l[0])*layers.T,axis=1)
 
-EDep_d = 1.96*np.sqrt(np.max(l_err*layers.T,axis=1)**2 + geantE**2)
+EDep_d = np.sqrt(np.max(l_err*layers.T,axis=1)**2 + geantE**2)
 ax1.plot(z,EDep,label='Linear combination')
 ax1.plot(z,np.sum(data[id],axis=0),label='Simulated')
-ax1.fill_between(z,EDep - EDep_d,EDep + EDep_d,label='95% CI',alpha=0.2)
+ax1.fill_between(z,EDep - 1.96*EDep_d,EDep + 1.96*EDep_d,label='95% CI',alpha=0.2)
 ax1.legend()
 ax1.set_ylabel('E [MeV]')
 ax2.set_ylabel('E [MeV]')
@@ -60,3 +56,6 @@ ax2.plot(z,np.sum(data[id],axis=0) - EDep,label='Residual')
 ax2.fill_between(z,-EDep_d,EDep_d,label='95% CI',alpha=0.2)
 ax2.legend()
 plt.show()
+
+print('Energy deposited:', np.sum(data[id]), 'MeV')
+print('Expected deposit:', np.sum(EDep), '+-', np.sum(EDep_d),'MeV')
