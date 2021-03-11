@@ -20,7 +20,8 @@ id = 0;
 ERef = np.load(dirRef + '/InitialEnergy.npy')['0']
 y = np.load(dirRef + '/y.npy')['0']
 z = np.load(dirRef + '/z.npy')['0']
-ref = np.reshape(np.load(dirRef + '/DepositedEnergy.npy'),(len(ERef),len(y),len(z)))
+ref = np.reshape(np.load(dirRef + '/DepositedEnergy.npy'),(len(ERef),len(y),len(z)))['1']
+#ref = np.reshape(np.load(dirErr + '/DepositedEnergy.npy'),(len(ERef),len(y),len(z)))['2']
 
 ECrits = np.load(dirRun + '/ECrit.npy')['0']
 EDist = np.load(dirRun + '/Energy.npy')['1']
@@ -28,13 +29,13 @@ EDist = np.reshape(EDist,(len(ECrits),int(len(EDist)/len(ECrits))))
 
 data = np.reshape(np.load(dirRun + '/DepositedEnergy.npy'),(len(ECrits),len(y),len(z)))['1']
 
-layers = np.array([np.sum(ref['1'][i,:,:],axis = 0) for i in range(len(ERef))])
+layers = np.array([np.sum(ref[i,:,:],axis = 0) for i in range(len(ERef))])
 
 
 Err = np.reshape(np.load(dirErr + '/DepositedEnergy.npy'),(len(ERef),len(y),len(z)))['1']
 
 Err = np.sum(Err,axis=1)
-Err[Err < 0] = 0
+#Err[Err < 0] = 0
 Err = np.sqrt(Err)
 
 fig, (ax1, ax2) = plt.subplots(2,1,sharex=True)
