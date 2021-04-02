@@ -1,0 +1,8 @@
+newDetProperConvTest_80k/InitialEnergy.npy filter=lfs diff=lfs merge=lfs -text
+newDetProperConvTest_80k/z.npy filter=lfs diff=lfs merge=lfs -text
+newDetProperConvTest_80k/Mangling.npy filter=lfs diff=lfs merge=lfs -text
+newDetProperConvTest_80k/Energy.npy filter=lfs diff=lfs merge=lfs -text
+newDetProperConvTest_80k/ECrit.npy filter=lfs diff=lfs merge=lfs -text
+newDetProperConvTest_80k/NoiseData.npy filter=lfs diff=lfs merge=lfs -text
+newDetProperConvTest_80k/y.npy filter=lfs diff=lfs merge=lfs -text
+newDetProperConvTest_80k/DepositedEnergy.npy filter=lfs diff=lfs merge=lfs -text
