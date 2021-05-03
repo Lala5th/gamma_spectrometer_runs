@@ -4,6 +4,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 import matplotlib.cm as cm
+from matplotlib import rc
+
+font = {'family' : 'normal',
+        'weight' : 'normal',
+        'size'   : 12}
+
+rc('font', **font)
 
 args = sys.argv
 cmap = cm.get_cmap('gnuplot')
@@ -22,5 +29,6 @@ plt.figure()
 [plt.plot(z,np.sum(data['1'][i,:,:],axis = 0)/max(np.sum(data['1'][i,:,:],axis = 0)),color=cmap(norm(E[i]))) for i in range(len(E))]
 plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('Initial Energy [MeV]')
 plt.ylabel('Normalised deposited Energy [a.u.]')
-plt.xlabel('Longitudinal crystal ID')
+plt.xlabel('Crystal layer')
+plt.grid()
 plt.show()

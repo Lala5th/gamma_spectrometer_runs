@@ -24,6 +24,7 @@ for dir in args[1:]:
     plt.plot(E,peaks,label=dir)
 
 plt.legend()
+plt.grid()
 plt.ylabel('Peak Crystal ID')
 plt.xlabel('Initial Energy [MeV]')
 plt.show()

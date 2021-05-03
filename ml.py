@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
-cmap = cm.get_cmap('seismic')
+cmap = colors.ListedColormap(np.array([[0,0,0.2],[0,0,0.3],[0.15,0.15,0.6],[0.3,0.3,0.6],[0.4,0.4,0.7],[0.5,0.5,0.8],[0.9,0.9,1],[0.95,0.95,1],
+                                       [1,0.95,0.95],[1,0.9,0.9],[0.8,0.5,0.5],[0.7,0.4,0.4],[0.6,0.3,0.3],[0.6,0.15,0.15],[0.3,0,0],[0.2,0,0]]));
 
 plt.ion()
 
@@ -95,14 +96,15 @@ for EC in np.arange(-0.4,0.4,0.1):
 ECs.append(EC + 0.1)
 ECs = np.array(ECs)
 ECs -= 0.05
-for std in range(0,50,5):
+for std in range(0,10,1):
     stds.append(std)
-stds.append(std + 5)
+stds.append(std + 1)
 stds = np.array(stds,dtype=np.float64)
-stds -= 2.5
+stds -= 0.5
 
 perc = []
 perc2 = []
+chi2 = []
 for i in range(len(datas)):
     measured = np.sum(datas[i],axis=0)
     def func(params):
@@ -119,24 +121,35 @@ for i in range(len(datas)):
     print("ml\t",max['x'][0],"\t",max['x'][1],"\t",get_chi2(EDepPred(*max['x']),measured,EDepVar(*max['x'])))
     perc.append(max['x'][0]/ECrits[i])
     perc2.append(min[1]/ECrits[i])
+    chi2.append(get_chi2(EDepPred(*max['x']),measured,EDepVar(*max['x']))/68)
     print("------------------------------------")
 
 perc = np.reshape(np.array(perc),(len(ECs)-1,len(stds)-1))
+chi2 = np.reshape(np.array(chi2),(len(ECs)-1,len(stds)-1))
 diff = np.max([1-np.min(perc),np.max(perc)-1,1-np.min(perc2),np.max(perc2)-1])
 diff = diff*100
-norm = colors.Normalize(vmin=1-diff,vmax=1+diff)
+norm = colors.Normalize(vmin=0.8,vmax=1.2)
 
 plt.figure()
-plt.pcolormesh(stds, ECs, (perc-1)*100, norm=norm, cmap=cmap, shading='flat')
-plt.xlabel("Convolution $\sigma$ [MeV]")
-plt.ylabel("Exponent correction [1]")
-plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('Difference [%]')
+plt.pcolormesh(stds, ECs, perc, norm=norm, cmap=cmap, shading='flat')
+plt.xlabel("$\sigma_e$ [MeV]")
+plt.ylabel("$\delta_e$ [1]")
+plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('$\mu_{fit}$/$\mu_{E}$')
 plt.show()
 
 perc2 = np.reshape(np.array(perc2),(len(ECs)-1,len(stds)-1))
 plt.figure()
-plt.pcolormesh(stds, ECs, (perc2-1)*100, norm=norm, cmap=cmap, shading='flat')
-plt.xlabel("Convolution $\sigma$ [MeV]")
-plt.ylabel("Exponent correction [1]")
-plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('Difference [%]')
+plt.pcolormesh(stds, ECs, perc2, norm=norm, cmap=cmap, shading='flat')
+plt.xlabel("$\sigma_e$ [MeV]")
+plt.ylabel("$\delta_e$ [1]")
+plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('$\mu_{fit}$/$\mu_{E}$')
+plt.show()
+
+norm = colors.Normalize(vmin=np.min(chi2),vmax=np.max(chi2))
+gnucmap = cm.get_cmap('gnuplot')
+plt.figure()
+plt.pcolormesh(stds, ECs, chi2, cmap=gnucmap,norm=norm, shading='flat')
+plt.xlabel("$\sigma_e$ [MeV]")
+plt.ylabel("$\delta_e$ [1]")
+plt.colorbar(cm.ScalarMappable(cmap=gnucmap,norm=norm)).set_label('$\chi_\\nu^2$')
 plt.show()

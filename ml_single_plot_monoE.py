@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import matplotlib.colors as colors
 
-cmap = cm.get_cmap('bwr')
+cmap = colors.ListedColormap(np.array([[0,0,0.2],[0,0,0.3],[0.15,0.15,0.6],[0.3,0.3,0.6],[0.4,0.4,0.7],[0.5,0.5,0.8],[0.9,0.9,1],[0.95,0.95,1],
+                                       [1,0.95,0.95],[1,0.9,0.9],[0.8,0.5,0.5],[0.7,0.4,0.4],[0.6,0.3,0.3],[0.6,0.15,0.15],[0.3,0,0],[0.2,0,0]]));
 
 plt.ion()
 
@@ -100,22 +101,22 @@ def getllfunc(data):
     return log_likelihood
 
 pars = []
-for E in range(10,300,20):
-    for std in range(0,200,20):
+for E in np.arange(1,10,0.2):
+    for std in np.arange(0,1,0.1):
         pars.append((E,std))
 
 Es = []
 stds = []
-for E in range(10,300,20):
+for E in np.arange(1,10,0.2):
     Es.append(E)
-Es.append(E + 10)
+Es.append(E + 0.2)
 Es = np.array(Es)
-Es -= 5
-for std in range(0,200,20):
+Es -= 0.1
+for std in np.arange(0,1,0.1):
     stds.append(std)
-stds.append(std + 10)
+stds.append(std + 0.1)
 stds = np.array(stds,dtype=np.float64)
-stds -= 5
+stds -= 0.05
 
 measured = np.sum(datas[id],axis=0)
 def func(params):

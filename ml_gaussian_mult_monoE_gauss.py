@@ -10,7 +10,9 @@ from scipy.stats import norm
 
 gaussian = lambda x, A, mu, sig : A*norm().pdf((x-mu)/sig)
 
-cmap = cm.get_cmap('bwr')
+#cmap = cm.get_cmap('bwr')
+cmap = colors.ListedColormap(np.array([[0,0,0.2],[0,0,0.3],[0.15,0.15,0.6],[0.3,0.3,0.6],[0.4,0.4,0.7],[0.5,0.5,0.8],[0.9,0.9,1],[0.95,0.95,1],
+                                       [1,0.95,0.95],[1,0.9,0.9],[0.8,0.5,0.5],[0.7,0.4,0.4],[0.6,0.3,0.3],[0.6,0.15,0.15],[0.3,0,0],[0.2,0,0]]));
 
 plt.ion()
 
@@ -102,25 +104,27 @@ def getllfunc(data):
     return log_likelihood
 
 pars = []
-for E in range(10,300,20):
-    for std in range(0,200,20):
+for E in np.arange(1,10,0.2):
+    for std in np.arange(0,1,0.1):
         pars.append((E,std))
 
 Es = []
 stds = []
-for E in range(10,300,20):
+for E in np.arange(1,10,0.2):
     Es.append(E)
-Es.append(E + 10)
+Es.append(E + 0.2)
 Es = np.array(Es)
-Es -= 5
-for std in range(0,200,20):
+Es -= 0.1
+for std in np.arange(0,1,0.1):
     stds.append(std)
-stds.append(std + 10)
+stds.append(std + 0.1)
 stds = np.array(stds,dtype=np.float64)
-stds -= 5
+stds -= 0.05
 
 perc = []
 perc2 = []
+percsigma = []
+chi2 = []
 for i in range(len(datas)):
     str = ""
     measured = np.sum(datas[i],axis=0)
@@ -128,34 +132,54 @@ for i in range(len(datas)):
         return np.sum(getBins(lambda x : params[1]*getFunc(params[0])(x),bins=new_ERef)*d.T,axis=1)
     def diff(params):
         return func(params) - measured
-    min,a = leastsq(diff,[10,1e5,10])
+    min,a = leastsq(diff,[5,1e5,0.1])
     str += "------------------------------------\n"
     str += f"{i}\t{pars[i][0]}\t{pars[i][1]}\n"
     str += f"Ecrit\t{ECrits[i]}\n"
     str += f"lsq\t{min[0]}\t{min[1]}\t{min[2]}\n"
     ll = lambda x : -getllfunc(measured)(x)
-    max = minimize(ll,[pars[i][0],1e5,pars[i][1]], method='L-BFGS-B')
+    max = minimize(ll,[5,1e5,0.1], method ='L-BFGS-B')
     str += f"ml\t{max['x'][0]}\t{max['x'][1]}\t{max['x'][2]}\t{get_chi2(EDepPred(*max['x']),measured,EDepVar(*max['x']))}\n"
     perc.append(max['x'][0]/ECrits[i])
     perc2.append(min[0]/ECrits[i])
+    percsigma.append(max['x'][2]/pars[i][1])
+    chi2.append(get_chi2(EDepPred(*max['x']),measured,EDepVar(*max['x']))/67)
     str += "------------------------------------\n"
     print(str,end="")
 
 perc = np.reshape(np.array(perc),(len(Es)-1,len(stds)-1))
+chi2 = np.reshape(np.array(chi2),(len(Es)-1,len(stds)-1))
 #diff = np.max([-np.log(np.min(perc)),np.log(np.max(perc)),-np.log(np.min(perc2)),np.log(np.max(perc2))])
 diff = 0.2
 norm = colors.Normalize(vmin=1-diff,vmax=1+diff)
 plt.figure()
 plt.pcolormesh(stds, Es, perc, norm=norm, cmap=cmap, shading='flat')
 plt.xlabel("Convolution $\sigma$ [MeV]")
-plt.ylabel("Dataset Energy [MeV]")
-plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('Ratio')
+plt.ylabel("$\mu_E$ [MeV]")
+plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('$\mu_{fit}$/$\mu_{E}$')
 plt.show()
 
 perc2 = np.reshape(np.array(perc2),(len(Es)-1,len(stds)-1))
 plt.figure()
 plt.pcolormesh(stds, Es, perc2, norm=norm, cmap=cmap, shading='flat')
 plt.xlabel("Convolution $\sigma$ [MeV]")
-plt.ylabel("Dataset Energy [MeV]")
-plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('Ratio')
+plt.ylabel("$\mu_E$ [MeV]")
+plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('$\mu_{fit}$/$\mu_{E}$')
+plt.show()
+
+percsigma = np.reshape(np.array(percsigma),(len(Es)-1,len(stds)-1))
+plt.figure()
+plt.pcolormesh(stds, Es, percsigma, norm=norm, cmap=cmap, shading='flat')
+plt.xlabel("$\sigma$ [MeV]")
+plt.ylabel("$\mu_E$ [MeV]")
+plt.colorbar(cm.ScalarMappable(norm=norm, cmap=cmap)).set_label('$\sigma_{fit}$/$\sigma_{true}$')
+plt.show()
+
+norm = colors.LogNorm(vmin=np.min(chi2),vmax=np.max(chi2))
+gnucmap = cm.get_cmap('gnuplot')
+plt.figure()
+plt.pcolormesh(stds, Es, chi2, cmap=gnucmap,norm=norm, shading='flat')
+plt.xlabel("$\sigma$ [MeV]")
+plt.ylabel("$\mu_E$ [MeV]")
+plt.colorbar(cm.ScalarMappable(cmap=gnucmap,norm=norm)).set_label('$\chi_\nu^2$')
 plt.show()
